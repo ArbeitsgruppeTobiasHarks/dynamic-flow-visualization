@@ -11,7 +11,7 @@
     "husky": "^8.0.1"
   },
   "scripts": {
-    "prettier": "prettier --help"
+    "prettier": "prettier --write ."
   },
   "husky": {
     "hooks": {
