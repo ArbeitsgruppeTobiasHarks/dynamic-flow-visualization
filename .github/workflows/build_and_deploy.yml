@@ -10,7 +10,7 @@ jobs:
       - name: Install and Build 🔧
         run: |
           npm ci
-          npm run build --workspaces
+          PUBLIC_URL="/dynamic-flow-visualization/" npm run build --workspaces
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@v4.2.2
         with:
