@@ -1,12 +1,12 @@
-import { Alignment, Button, ButtonGroup, Navbar, NavbarGroup, NavbarHeading, Toaster } from '@blueprintjs/core'
+import { Alignment, Button, ButtonGroup, Navbar, NavbarGroup, NavbarHeading } from '@blueprintjs/core'
 import * as React from 'react'
 import { useRef, useState } from 'react'
-import { createRoot } from 'react-dom/client'
 
 import styled from 'styled-components'
 import { flow as initialFlow, network as initialNetwork } from './sample'
 import { Network, Flow } from 'dynamic-flow-visualization'
 import { DynamicFlowViewer } from './DynamicFlowViewer'
+import { getAppToaster } from './AppToaster'
 
 const MyContainer = styled.div`
   width: 100%;
@@ -42,14 +42,14 @@ const App = () => {
       const network = Network.fromJson(json['network'])
       const flow = Flow.fromJson(json['flow'])
       setNetworkAndFlow({ network, flow })
-      AppToaster.show({ message: 'Dynamic Flow loaded.', intent: 'success' })
+      getAppToaster().show({ message: 'Dynamic Flow loaded.', intent: 'success' })
     } catch (error) {
       if (error instanceof SyntaxError) {
         console.error(error)
-        AppToaster.show({ message: String(error), intent: 'danger' })
+        getAppToaster().show({ message: String(error), intent: 'danger' })
       } else {
         console.error(error)
-        AppToaster.show({ message: 'Could not construct a flow: ' + String(error), intent: 'danger' })
+        getAppToaster().show({ message: 'Could not construct a flow: ' + String(error), intent: 'danger' })
       }
     }
   }
@@ -62,8 +62,8 @@ const App = () => {
         openFlowFromJsonText(reader.result)
       })
       reader.readAsText(file)
-      reader.addEventListener('abort', () => AppToaster.show({ message: 'Could not read file.', intent: 'danger' }))
-      reader.addEventListener('error', () => AppToaster.show({ message: 'Could not read file.', intent: 'danger' }))
+      reader.addEventListener('abort', () => getAppToaster().show({ message: 'Could not read file.', intent: 'danger' }))
+      reader.addEventListener('error', () => getAppToaster().show({ message: 'Could not read file.', intent: 'danger' }))
     }
   }
 
@@ -73,13 +73,13 @@ const App = () => {
     if (event.dataTransfer.items) {
       // Use DataTransferItemList interface to access the file(s)
       if (event.dataTransfer.items.length !== 1) {
-        AppToaster.show({ message: 'Error. Please drop exactly one file.', intent: 'danger' })
+        getAppToaster().show({ message: 'Error. Please drop exactly one file.', intent: 'danger' })
         return
       }
       const item = event.dataTransfer.items[0]
       // If dropped items aren't files, reject them
       if (item.kind !== 'file') {
-        AppToaster.show({ message: 'Please drop a file.', intent: 'danger' })
+        getAppToaster().show({ message: 'Please drop a file.', intent: 'danger' })
         return
       }
       const file: File = item.getAsFile()
@@ -87,7 +87,7 @@ const App = () => {
     } else {
       // Use DataTransfer interface to access the file(s)
       if (event.dataTransfer.files.length !== 1) {
-        AppToaster.show({ message: 'Please drop exactly one file.', intent: 'danger' })
+        getAppToaster().show({ message: 'Please drop exactly one file.', intent: 'danger' })
         return
       }
       const file: File = event.dataTransfer.files[0]
@@ -146,15 +146,5 @@ const DragOverContainer = ({ dragOver }: { dragOver: boolean }) => {
     </div>
   )
 }
-
-let AppToaster: Toaster
-
-createRoot(document.getElementById('toaster')!).render(
-  <Toaster
-    ref={(instance) => {
-      AppToaster = instance!
-    }}
-  />
-)
 
 export default App
