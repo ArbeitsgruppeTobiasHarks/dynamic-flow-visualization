@@ -1,22 +1,29 @@
 import _, { max, min } from "lodash"
-import React, { useEffect, useRef, useState } from "react"
-import { Flow, RightConstant } from "./Flow"
-import { Network } from "./Network"
+import React, { useCallback, useEffect, useRef, useState } from "react"
 import useSize from '@react-hook/size'
 import { Button, Card, Collapse, Icon, IconName, Slider } from "@blueprintjs/core"
-import { calcOutflowSteps, FlowEdge, SvgDefs, Vertex } from "./DynFlowSvg"
-
+import { Flow, Network, RightConstant, DynamicFlowSvg } from "dynamic-flow-visualization"
 
 
 const useMinMaxTime = (flow: Flow) => React.useMemo(
     () => {
         const allTimes = _.concat(
-            _.map(flow.inflow, flowObject => Object.values(flowObject).map((pwc: RightConstant) => pwc.times).flat()).flat(),
-            _.map(flow.outflow, flowObject => Object.values(flowObject).map((pwc: RightConstant) => pwc.times).flat()).flat(),
-            _.map(flow.queues, pwc => pwc.times).flat()
+            _.flatten(
+                _.map(
+                    flow.inflow,
+                    flowObject => _.flatten(_.values(flowObject).map((pwc: RightConstant) => pwc.times))
+                )
+            ),
+            _.flatten(
+                _.map(
+                    flow.outflow,
+                    flowObject => _.flatten(_.values(flowObject).map((pwc: RightConstant) => pwc.times))
+                )
+            ),
+            _.flatten(_.map(flow.queues, pwc => pwc.times))
         )
 
-        return [min(allTimes), max(allTimes)]
+        return [min(allTimes)!, max(allTimes)!]
     }
     , [flow])
 
@@ -28,7 +35,7 @@ const useAvgDistanceTransitTimeRatio = (network: Network) => React.useMemo(
                 const from = network.nodesMap[edge.from]
                 const to = network.nodesMap[edge.to]
                 const edgeDistance = Math.sqrt((from.x - to.x) ** 2 + (from.y - to.y) ** 2)
-                if (edge.transitTime == 0) return null
+                if (edge.transitTime === 0) return null
                 return edgeDistance / edge.transitTime
             }
         ).filter(ratio => typeof ratio === 'number')
@@ -37,14 +44,14 @@ const useAvgDistanceTransitTimeRatio = (network: Network) => React.useMemo(
     [network]
 )
 
-const useInitialBoundingBox = (network: Network) => React.useMemo(
+const useNetworkBoundingBox = (network: Network) => React.useMemo(
     () => {
         const allXCoordinates = _.map(network.nodesMap, node => node.x)
-        const x0 = min(allXCoordinates)
-        const x1 = max(allXCoordinates)
+        const x0 = min(allXCoordinates)!
+        const x1 = max(allXCoordinates)!
         const allYCoordinates = _.map(network.nodesMap, node => node.y)
-        const y0 = min(allYCoordinates)
-        const y1 = max(allYCoordinates)
+        const y0 = min(allYCoordinates)!
+        const y1 = max(allYCoordinates)!
         return {
             x0, x1, width: x1 - x0,
             y0, y1, height: y1 - y0
@@ -116,7 +123,7 @@ export const DynamicFlowViewer = (props: { network: Network, flow: Flow }) => {
 
     const initialNodeScale = 0.1
     const [nodeScale, setNodeScale] = React.useState(initialNodeScale)
-    const scaledNetwork = useScaledNetwork(props.network, useInitialBoundingBox(props.network))
+    const scaledNetwork = useScaledNetwork(props.network, useNetworkBoundingBox(props.network))
     const avgEdgeDistance = useAverageEdgeDistance(scaledNetwork)
     const avgCapacity = useAverageCapacity(scaledNetwork)
     const initialNodeRadius = initialNodeScale * avgEdgeDistance
@@ -136,11 +143,11 @@ export const DynamicFlowViewer = (props: { network: Network, flow: Flow }) => {
     // nodeScale * avgEdgeLength is the radius of a node
     const svgContainerRef = useRef(null);
     const [width, height] = useSize(svgContainerRef);
-    const bb = useInitialBoundingBox(scaledNetwork)
+    const bb = useNetworkBoundingBox(scaledNetwork)
 
     const [manualZoom, setManualZoom] = useState<number | null>(null)
 
-    const initialCenter = [bb.x0 + bb.width / 2, bb.y0 + bb.height / 2]
+    const initialCenter = React.useMemo(() => [bb.x0 + bb.width / 2, bb.y0 + bb.height / 2], [bb])
 
     const [center, setCenter] = useState(initialCenter)
     const stdZoom = Math.min(width / bb.width, height / bb.height) / 1.5
@@ -154,8 +161,6 @@ export const DynamicFlowViewer = (props: { network: Network, flow: Flow }) => {
     const handleWheel: React.WheelEventHandler = (event) => {
         setManualZoom(Math.max(stdZoom / 4, zoom * (event.deltaY < 0 ? ZOOM_MULTIPLER : 1 / ZOOM_MULTIPLER)))
     }
-
-    const [viewOptionsOpen, setViewOptionsOpen] = useState(false)
 
     useEffect(
         () => {
@@ -178,16 +183,16 @@ export const DynamicFlowViewer = (props: { network: Network, flow: Flow }) => {
                 window.removeEventListener("mouseup", handleMouseUp)
             }
         },
-        [dragMode]
+        [dragMode, zoom]
     )
 
-    const resetViewOptions = () => {
+    const resetViewOptions = useCallback(() => {
         setNodeScale(initialNodeScale)
         setFlowScale(initialFlowScale)
         setWaitingTimeScale(avgDistanceTransitTimeRatio)
         setStrokeWidth(initialStrokeWidth)
         setEdgeOffset(initialEdgeOffset)
-    }
+    }, [avgDistanceTransitTimeRatio, initialEdgeOffset, initialFlowScale, initialStrokeWidth])
 
     // Reset parameters when props change
     useEffect(
@@ -199,7 +204,7 @@ export const DynamicFlowViewer = (props: { network: Network, flow: Flow }) => {
             setManualZoom(null)
             setCenter(initialCenter)
         },
-        [props.network, props.flow]
+        [props.network, props.flow, maxT, minT, resetViewOptions, initialCenter]
     )
 
     const onResetCamera = () => {
@@ -230,37 +235,66 @@ export const DynamicFlowViewer = (props: { network: Network, flow: Flow }) => {
                     </div>
                 </div>
             </Card>
-            <Card style={{ flex: '1' }}>
-                <div style={{ display: 'flex', flexDirection: 'row' }}>
-                    <h5>View Options</h5>
-                    <Button icon={viewOptionsOpen ? 'caret-up' : 'caret-down'} minimal onClick={() => setViewOptionsOpen(value => !value)} />
-                    <div style={{ flex: '1', display: 'flex', justifyContent: 'right' }}>
-                        <Button icon='reset' minimal onClick={resetViewOptions} />
-                    </div>
-                </div>
-                <Collapse isOpen={viewOptionsOpen}>
-                    <SliderOption icon="circle" label="Node-Scale:" value={nodeScale} setValue={setNodeScale} initialValue={initialNodeScale} />
-                    <SliderOption icon="flow-linear" label="Edge-Scale:" value={flowScale} setValue={setFlowScale} initialValue={initialFlowScale} max={10 * initialFlowScale} />
-                    <SliderOption icon="stopwatch" label="Queue-Scale:" value={waitingTimeScale} setValue={setWaitingTimeScale} initialValue={avgDistanceTransitTimeRatio} />
-                    <SliderOption icon="horizontal-inbetween" label="Edge-Offset:" value={edgeOffset} setValue={setEdgeOffset} initialValue={initialEdgeOffset} />
-                    <SliderOption icon="full-circle" label="Stroke-Width:" value={strokeWidth} setValue={setStrokeWidth} initialValue={initialStrokeWidth} />
-                </Collapse>
-            </Card>
+            <ViewOptionsCard
+                resetViewOptions={resetViewOptions}
+                nodeScale={nodeScale} setNodeScale={setNodeScale} initialNodeScale={initialNodeScale}
+                flowScale={flowScale} setFlowScale={setFlowScale} initialFlowScale={initialFlowScale}
+                waitingTimeScale={waitingTimeScale} setWaitingTimeScale={setWaitingTimeScale} initialWaitingTimeScale={avgDistanceTransitTimeRatio}
+                edgeOffset={edgeOffset} setEdgeOffset={setEdgeOffset} initialEdgeOffset={initialEdgeOffset}
+                strokeWidth={strokeWidth} setStrokeWidth={setStrokeWidth} initialStrokeWidth={initialStrokeWidth} />
         </div>
         <div style={{ flex: 1, position: "relative", overflow: "hidden" }} ref={svgContainerRef}>
             <svg width={width} height={height} viewBox={viewBoxString} onMouseDown={handleMouseDown} onWheel={handleWheel}
                 style={{ position: "absolute", top: "0", left: "0", background: "#eee", cursor: "default" }}>
-                <SvgContent waitingTimeScale={waitingTimeScale} flowScale={flowScale} nodeRadius={nodeRadius} strokeWidth={strokeWidth}
+                <DynamicFlowSvg waitingTimeScale={waitingTimeScale} flowScale={flowScale} nodeRadius={nodeRadius} strokeWidth={strokeWidth}
                     edgeOffset={edgeOffset} t={t} network={scaledNetwork} flow={props.flow} />
             </svg>
             <div style={{ position: "absolute", bottom: "16px", right: 0 }}>
                 <div style={{ padding: '8px' }}>
-                    <Slider value={Math.log(zoom / stdZoom) / Math.log(ZOOM_MULTIPLER)} min={-10} max={10} onChange={value => setManualZoom(stdZoom * Math.pow(ZOOM_MULTIPLER, value))} vertical labelRenderer={false} showTrackFill={false} />
+                    <Slider value={Math.log(zoom / stdZoom) / Math.log(ZOOM_MULTIPLER)} min={-10} max={10} onChange={(value: number) => setManualZoom(stdZoom * Math.pow(ZOOM_MULTIPLER, value))} vertical labelRenderer={false} showTrackFill={false} />
                 </div>
                 <Button icon="reset" onClick={onResetCamera} />
             </div>
         </div>
     </>
+}
+
+const ViewOptionsCard = (props: {
+    resetViewOptions: () => void,
+    nodeScale: number,
+    setNodeScale: (value: number) => void,
+    initialNodeScale: number,
+    flowScale: number,
+    setFlowScale: (value: number) => void,
+    initialFlowScale: number,
+    waitingTimeScale: number,
+    setWaitingTimeScale: (value: number) => void,
+    initialWaitingTimeScale: number,
+    edgeOffset: number,
+    setEdgeOffset: (value: number) => void,
+    initialEdgeOffset: number,
+    strokeWidth: number,
+    setStrokeWidth: (value: number) => void,
+    initialStrokeWidth: number
+}) => {
+    const [optionsOpen, setOptionsOpen] = useState(false)
+
+    return <Card style={{ flex: '1' }}>
+        <div style={{ display: 'flex', flexDirection: 'row' }}>
+            <h5>View Options</h5>
+            <Button icon={optionsOpen ? 'caret-up' : 'caret-down'} minimal onClick={() => setOptionsOpen(value => !value)} />
+            <div style={{ flex: '1', display: 'flex', justifyContent: 'right' }}>
+                <Button icon='reset' minimal onClick={props.resetViewOptions} />
+            </div>
+        </div>
+        <Collapse isOpen={optionsOpen}>
+            <SliderOption icon="circle" label="Node-Scale:" value={props.nodeScale} setValue={props.setNodeScale} initialValue={props.initialNodeScale} />
+            <SliderOption icon="flow-linear" label="Edge-Scale:" value={props.flowScale} setValue={props.setFlowScale} initialValue={props.initialFlowScale} max={10 * props.initialFlowScale} />
+            <SliderOption icon="stopwatch" label="Queue-Scale:" value={props.waitingTimeScale} setValue={props.setWaitingTimeScale} initialValue={props.initialWaitingTimeScale} />
+            <SliderOption icon="horizontal-inbetween" label="Edge-Offset:" value={props.edgeOffset} setValue={props.setEdgeOffset} initialValue={props.initialEdgeOffset} />
+            <SliderOption icon="full-circle" label="Stroke-Width:" value={props.strokeWidth} setValue={props.setStrokeWidth} initialValue={props.initialStrokeWidth} />
+        </Collapse>
+    </Card>
 }
 
 const SliderOption = (
@@ -274,65 +308,4 @@ const SliderOption = (
         <Slider onChange={props.setValue} value={props.value} min={min} max={max} stepSize={(max - min) / 100} labelStepSize={(max - min) / 10} labelPrecision={2} />
         <Button style={{ marginLeft: '16px' }} icon='reset' minimal onClick={() => props.setValue(props.initialValue)} />
     </div>
-}
-
-export const SvgContent = (
-    { t = 0, network, flow, nodeRadius, edgeOffset, strokeWidth, flowScale, waitingTimeScale }:
-        { t: number, network: Network, flow: Flow, nodeRadius: number, edgeOffset: number, strokeWidth: number, flowScale: number, waitingTimeScale: number }
-) => {
-    const svgIdPrefix = ""
-    return <>
-        <SvgDefs svgIdPrefix={svgIdPrefix} />
-        <EdgesCoordinator network={network} waitingTimeScale={waitingTimeScale} strokeWidth={strokeWidth} flowScale={flowScale}
-            svgIdPrefix={svgIdPrefix} edgeOffset={edgeOffset} flow={flow} t={t} />
-        {
-            _.map(network.nodesMap, (value, id) => {
-                return <Vertex key={id} strokeWidth={strokeWidth} radius={nodeRadius} pos={[value.x, value.y]} label={value.label ?? value.id} />
-            })
-        }
-    </>
-}
-
-const EdgesCoordinator = (
-    props: {
-        network: Network, waitingTimeScale: number, strokeWidth: number,
-        flowScale: number, svgIdPrefix: string, edgeOffset: number, flow: Flow, t: number
-    }
-) => {
-    const outflowSteps = React.useMemo(
-        () => props.flow.outflow.map((outflow: any) => calcOutflowSteps(outflow, props.network.commoditiesMap)),
-        [props.flow]
-    )
-
-    const edgesWithViewOpts = React.useMemo(
-        () => {
-            const grouped = _.groupBy(props.network.edgesMap, ({ from, to }) => JSON.stringify(from < to ? [from, to] : [to, from]))
-            return _.map(grouped, group => {
-                const sorted = _.sortBy(group, edge => edge.from)
-                const totalCapacity = _.sum(group.map(edge => edge.capacity))
-                let translate = -totalCapacity * props.flowScale / 2 - props.strokeWidth * (group.length + 1) / 2
-                return sorted.map(edge => {
-                    const edgeTranslate = translate + edge.capacity * props.flowScale / 2 + props.strokeWidth / 2
-                    translate += edge.capacity * props.flowScale + props.strokeWidth
-                    return {
-                        translate: edgeTranslate * (edge.from < edge.to ? -1 : 1), edge, multiGroup: group.length > 1
-                    }
-                })
-            }).flat()
-        },
-        [props.network, props.strokeWidth, props.flowScale]
-    )
-
-    return <>
-        {_.map(edgesWithViewOpts, ({ edge, translate, multiGroup }) => {
-            const fromNode = props.network.nodesMap[edge.from]
-            const toNode = props.network.nodesMap[edge.to]
-            return <FlowEdge
-                id={edge.id}
-                waitingTimeScale={props.waitingTimeScale} strokeWidth={props.strokeWidth} flowScale={props.flowScale} translate={translate} multiGroup={multiGroup}
-                key={edge.id} t={props.t} capacity={edge.capacity} offset={props.edgeOffset} from={[fromNode.x, fromNode.y]} to={[toNode.x, toNode.y]} svgIdPrefix={props.svgIdPrefix}
-                outflowSteps={outflowSteps[edge.id]} transitTime={edge.transitTime} queue={props.flow.queues[edge.id]}
-            />
-        })}
-    </>
 }

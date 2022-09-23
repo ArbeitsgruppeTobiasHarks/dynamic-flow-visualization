@@ -1,8 +1,7 @@
-import { Flow } from "./Flow";
+import { Flow, Network } from 'dynamic-flow-visualization'
 import * as _ from 'lodash'
 
 import example3FlowData from "./example3FlowData.js"
-import { Network } from './Network';
 
 
 export const network = Network.fromJson({

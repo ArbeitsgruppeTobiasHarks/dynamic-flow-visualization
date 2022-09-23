@@ -1,7 +1,6 @@
-import { Flow } from "./Flow";
 
+import { Flow, Network } from "dynamic-flow-visualization"
 import sampleData from "./sampleFlowData.json"
-import { Network } from './Network';
 
 
 export const network = Network.fromJson(sampleData["network"])

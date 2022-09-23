@@ -1,33 +1,22 @@
-import React from 'react';
-import TeX from '@matejmazur/react-katex'
+import { flatten, values } from 'lodash'
+import React from 'react'
+import { mergeLists } from './ArrayUtils'
+import { RatesCollection } from './Flow'
+import { Commodity, CommodityId, EdgeId } from './Network'
+import { d } from './PathData'
+import { PiecewiseLinear } from './PiecewiseLinear'
 
-const RED = '#a00'
-const GREEN = '#0a0'
+type ColorType = string
 
-export const FlowModelSvg = () => {
-    const sPos = [25, 100]
-    const vPos = [225, 100]
-    const tPos = [425, 100]
-    return <svg width={500} height={500}>
-
-        <SvgDefs />
-
-        <BaseEdge from={sPos} to={vPos} width={20} />
-        <BaseEdge from={vPos} to={tPos} width={10} inEdgeSteps={[
-            { start: 0, end: 200, values: [{ color: RED, value: 5 }, { color: GREEN, value: 5 }] }
-        ]} queueSteps={[
-            { start: -50, end: 0, values: [{ color: RED, value: 5 }, { color: GREEN, value: 5 }] },
-            { start: -100, end: -50, values: [{ color: RED, value: 10 }] }
-        ]} />
-        <Vertex pos={sPos} label={<TeX>s</TeX>} />
-        <Vertex pos={vPos} label={<TeX>v</TeX>} />
-        <Vertex pos={tPos} label={<TeX>t</TeX>} />
-    </svg>
+interface FlowStep {
+    start: number
+    end: number
+    values: { color: ColorType, value: number }[]
 }
 
-export const calcOutflowSteps = (outflow, commodities) => {
-    const outflowTimes = merge(Object.values(outflow).map(pwConstant => pwConstant.times))
-    // Every two subsequent values in outflowTimes corresponds to a flow step.
+export const calcOutflowSteps = (outflow: RatesCollection, commodities: { [commodity in CommodityId]: Commodity }): FlowStep[] => {
+    const outflowTimes = mergeLists(values(outflow).map(pwConstant => pwConstant.times))
+    // Every two subsequent values in outflowTimes correspond to a flow step.
     const flowSteps = []
     for (let i = 0; i < outflowTimes.length - 1; i++) {
         // Block from i to i+1
@@ -42,7 +31,7 @@ export const calcOutflowSteps = (outflow, commodities) => {
     return flowSteps
 }
 
-export const splitOutflowSteps = (outflowSteps, queue, transitTime, capacity, t) => {
+export const splitOutflowSteps = (outflowSteps: FlowStep[], queue: PiecewiseLinear, transitTime: number, capacity: number, t: number) => {
     const queueSteps = []
     const inEdgeSteps = []
 
@@ -69,31 +58,7 @@ export const splitOutflowSteps = (outflowSteps, queue, transitTime, capacity, t)
 }
 
 
-
-const merge = (lists) => {
-    const indices = lists.map(() => 0)
-    let curVal = Math.min(...lists.map(list => list[0]))
-    const merged = [curVal]
-    while (true) {
-        let min = Infinity
-        let listIndex = -1
-        for (let i = 0; i < lists.length; i++) {
-            if (indices[i] < lists[i].length - 1 && lists[i][indices[i] + 1] <= min) {
-                min = lists[i][indices[i] + 1]
-                listIndex = i
-            }
-        }
-
-        if (listIndex == -1) {
-            return merged
-        } else {
-            merged.push(min)
-            indices[listIndex] += 1
-        }
-    }
-}
-
-export const SvgDefs = ({ svgIdPrefix }) => (<>
+export const SvgDefs = ({ svgIdPrefix }: { svgIdPrefix: string }) => (<>
     <linearGradient id={`${svgIdPrefix}fade-grad`} x1="0" y1="1" y2="0" x2="0">
         <stop offset="0" stopColor='white' stopOpacity="0.5" />
         <stop offset="1" stopColor='white' stopOpacity="0.2" />
@@ -104,7 +69,11 @@ export const SvgDefs = ({ svgIdPrefix }) => (<>
 </>
 )
 
-export const BaseEdge = ({ multiGroup, translate, svgIdPrefix, waitingTimeScale, transitTime, visible, from, to, offset, strokeWidth, flowScale, capacity, inEdgeSteps = [], queueSteps = [], id }) => {
+type XYCoordinates = [number, number]
+
+export const BaseEdge = (
+    { multiGroup, translate, svgIdPrefix, waitingTimeScale, transitTime, visible, from, to, offset, strokeWidth, flowScale, capacity, inEdgeSteps = [], queueSteps = [], id }:
+        { multiGroup: boolean, translate: number, svgIdPrefix: string, waitingTimeScale: number, transitTime: number, visible: boolean, from: XYCoordinates, to: XYCoordinates, offset: number, strokeWidth: number, flowScale: number, capacity: number, inEdgeSteps: FlowStep[], queueSteps: FlowStep[], id: EdgeId }) => {
     const width = flowScale * capacity
     const padding = offset
     const arrowHeadWidth = offset / 2
@@ -125,33 +94,36 @@ export const BaseEdge = ({ multiGroup, translate, svgIdPrefix, waitingTimeScale,
             width={normOffsetted} height={width} fill="white" stroke="none"
         />
         {
-            inEdgeSteps.map(({ start, end, values }, index1) => {
-                const s = values.reduce((acc, { value }) => acc + value, 0) * flowScale
-                let y = edgeStart[1] - s / 2
-                return values.map(({ color, value }, index2) => {
-                    const myY = y
-                    y += value * flowScale
-                    return (
-                        <rect
-                            key={`${index1}-${index2}`}
-                            fill={color} x={edgeStart[0] + normOffsetted - end / transitTime * normOffsetted} y={myY} width={(end - start) / transitTime * normOffsetted} height={value * flowScale} />
-                    )
-                })
-            }).flat()
+            flatten(
+                inEdgeSteps.map(({ start, end, values }, index1) => {
+                    const s = values.reduce((acc, { value }) => acc + value, 0) * flowScale
+                    let y = edgeStart[1] - s / 2
+                    return values.map(({ color, value }, index2) => {
+                        const myY = y
+                        y += value * flowScale
+                        return (
+                            <rect
+                                key={`${index1}-${index2}`}
+                                fill={color} x={edgeStart[0] + normOffsetted - end / transitTime * normOffsetted} y={myY} width={(end - start) / transitTime * normOffsetted} height={value * flowScale} />
+                        )
+                    })
+                }))
         }
         <g mask={`url(#${svgIdPrefix}fade-mask)`}>
             {
-                queueSteps.map(({ start, end, values }, index1) => {
-                    let x = edgeStart[0] - width
-                    return values.slice(0).reverse().map(({ color, value }, index2) => {
-                        const myX = x
-                        x += value * flowScale
-                        return (
-                            <rect key={`${index1}-${index2}`} fill={color} x={myX} y={edgeStart[1] - width + start * waitingTimeScale}
-                                width={value * flowScale} height={(end - start) * waitingTimeScale} />
-                        )
+                flatten(
+                    queueSteps.map(({ start, end, values }, index1) => {
+                        let x = edgeStart[0] - width
+                        return values.slice(0).reverse().map(({ color, value }, index2) => {
+                            const myX = x
+                            x += value * flowScale
+                            return (
+                                <rect key={`${index1}-${index2}`} fill={color} x={myX} y={edgeStart[1] - width + start * waitingTimeScale}
+                                    width={value * flowScale} height={(end - start) * waitingTimeScale} />
+                            )
+                        })
                     })
-                }).flat()
+                )
             }
         </g>
         <path stroke="gray" strokeWidth={strokeWidth} style={{ transition: "opacity 0.2s" }} opacity={queueSteps.length > 0 ? 1 : 0}
@@ -164,7 +136,11 @@ export const BaseEdge = ({ multiGroup, translate, svgIdPrefix, waitingTimeScale,
 }
 
 
-export const FlowEdge = ({ flowScale, id, translate, multiGroup, waitingTimeScale, strokeWidth, svgIdPrefix, from, to, outflowSteps, queue, t, capacity, transitTime, visible = true, offset }) => {
+export const FlowEdge = ({
+    flowScale, id, translate, multiGroup, waitingTimeScale, strokeWidth, svgIdPrefix, from, to, outflowSteps, queue, t, capacity, transitTime, visible = true, offset
+}: {
+    flowScale: number, id: EdgeId, translate: number, multiGroup: boolean, waitingTimeScale: number, strokeWidth: number, svgIdPrefix: string, from: XYCoordinates, to: XYCoordinates, outflowSteps: FlowStep[], queue: PiecewiseLinear, t: number, capacity: number, transitTime: number, visible?: boolean, offset: number
+}) => {
     const { inEdgeSteps, queueSteps } = splitOutflowSteps(outflowSteps, queue, transitTime, capacity, t)
 
     return (
@@ -188,7 +164,10 @@ export const FlowEdge = ({ flowScale, id, translate, multiGroup, waitingTimeScal
 }
 
 
-export const Vertex = ({ label, pos, visible = true, radius = 1, strokeWidth = 0.05 }) => {
+export const Vertex = (
+    { label, pos, visible = true, radius, strokeWidth }:
+    { label: string, pos: XYCoordinates, visible?: boolean, radius: number, strokeWidth: number }
+) => {
     const [cx, cy] = pos
     return <g style={{ transition: "opacity 0.2s" }} opacity={visible ? 1 : 0}>
         <circle cx={cx} cy={cy} r={radius} stroke="black" strokeWidth={strokeWidth} fill="white" />
@@ -199,22 +178,13 @@ export const Vertex = ({ label, pos, visible = true, radius = 1, strokeWidth = 0
     </g>
 }
 
-export const ForeignObjectLabel = ({ cx, cy, width = 40, height = 40, children }) => (
+export const ForeignObjectLabel = (
+    { cx, cy, width = 40, height = 40, children }:
+    { cx: number, cy: number, width: number, height: number, children: React.ReactNode}
+) => (
     <foreignObject x={cx - width / 2} y={cy - height / 2} width={width} height={height}>
         <div style={{ width, height, display: 'grid', justifyContent: 'center', alignItems: 'center' }}>
             {children}
         </div>
     </foreignObject>
 )
-
-export const d = {
-    M: (x, y) => `M${x} ${y}`,
-    c: (dx1, dy1, dx2, dy2, x, y) => `c${dx1} ${dy1} ${dx2} ${dy2} ${x} ${y}`,
-    l: (x, y) => `l${x} ${y}`,
-    L: (x, y) => `L${x} ${y}`,
-    h: (x) => `h${x}`,
-    H: (x) => `H${x}`,
-    v: (y) => `v${y}`,
-    m: (x, y) => `m${x} ${y}`,
-    z: 'z'
-}

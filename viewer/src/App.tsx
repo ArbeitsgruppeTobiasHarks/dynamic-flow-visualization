@@ -5,9 +5,8 @@ import { createRoot } from "react-dom/client"
 
 import styled from 'styled-components'
 import { flow as initialFlow, network as initialNetwork } from "./sample"
-import { Network } from "./Network"
-import { Flow } from "./Flow"
-import { DynamicFlowViewer } from "./DynamicFlowViewer"
+import { Network, Flow } from 'dynamic-flow-visualization'
+import { DynamicFlowViewer } from './DynamicFlowViewer'
 
 const MyContainer = styled.div`
     width: 100%;
@@ -33,10 +32,10 @@ const MyContainer = styled.div`
 `;
 
 
-export default () => {
+const App = () => {
     const [{ network, flow }, setNetworkAndFlow] = useState({ network: initialNetwork, flow: initialFlow })
     const [dragOver, setDragOver] = useState(false)
-    const fileInputRef = useRef<HTMLInputElement>()
+    const fileInputRef = useRef<HTMLInputElement>(null)
 
 
     const openFlowFromJsonText = (jsonText: string) => {
@@ -75,7 +74,7 @@ export default () => {
         setDragOver(false)
         if (event.dataTransfer.items) {
             // Use DataTransferItemList interface to access the file(s)
-            if (event.dataTransfer.items.length != 1) {
+            if (event.dataTransfer.items.length !== 1) {
                 AppToaster.show({ message: "Error. Please drop exactly one file.", intent: "danger" })
                 return
             }
@@ -89,7 +88,7 @@ export default () => {
             openFlowFromJsonText(await file.text())
         } else {
             // Use DataTransfer interface to access the file(s)
-            if (event.dataTransfer.files.length != 1) {
+            if (event.dataTransfer.files.length !== 1) {
                 AppToaster.show({ message: "Please drop exactly one file.", intent: 'danger' })
                 return
             }
@@ -112,7 +111,7 @@ export default () => {
             </NavbarGroup>
             <NavbarGroup align={Alignment.RIGHT}>
                 <ButtonGroup>
-                    <Button icon="folder-shared" intent="primary" onClick={() => fileInputRef.current.click()}>Open Dynamic Flow</Button>
+                    <Button icon="folder-shared" intent="primary" onClick={() => fileInputRef.current?.click()}>Open Dynamic Flow</Button>
                     <input style={{ display: 'none' }} ref={fileInputRef} type="file" accept=".json" onChange={onOpen} />
                 </ButtonGroup>
             </NavbarGroup>
@@ -147,3 +146,6 @@ let AppToaster: Toaster
 createRoot(document.getElementById('toaster')!).render(
   <Toaster ref={instance => { AppToaster = instance! }} />
 )
+
+
+export default App
