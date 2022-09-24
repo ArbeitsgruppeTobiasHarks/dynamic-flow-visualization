@@ -1,0 +1,48 @@
+<head>
+  <script src="https://unpkg.com/react@18.2.0/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
+  <script src="https://unpkg.com/dynamic-flow-visualization@0.2.2/dist/dynamicflowvisualization.umd.production.min.js"></script>
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="module">
+    import htm from 'https://unpkg.com/htm@^3?module'
+    const html = htm.bind(React.createElement)
+
+    const { DynamicFlowSvg, Flow, Network } = DynamicFlowVisualization
+
+    const network = Network.fromJson({
+      nodes: [
+        { id: 0, x: 0.0, y: 0.0 },
+        { id: 1, x: 1.0, y: 0.0 }
+      ],
+      edges: [{ id: 0, from: 0, to: 1, capacity: 1.0, transitTime: 1.0 }],
+      commodities: [{ id: 0, color: 'blue' }]
+    })
+    const flow = Flow.fromJson({
+      inflow: [{ 0: { times: [0.0, 5.0], values: [2, 0], domain: [0.0, 'Infinity'] } }],
+      outflow: [{ 0: { times: [0.0, 1.0, 11.0], values: [0.0, 1.0, 0.0], domain: [0.0, 'Infinity'] } }],
+      queues: [
+        { times: [0.0, 5.0, 10.0], values: [0.0, 5.0, 0.0], firstSlope: 0.0, lastSlope: 0.0, domain: [0.0, 'Infinity'] }
+      ]
+    })
+
+    const SampleSvg = () => html`
+      <svg width="600" height="600" viewBox="-1 -2 3 3">
+        <${DynamicFlowSvg}
+          network=${network}
+          flow=${flow}
+          t=${1}
+          nodeRadius=${0.2}
+          flowScale=${0.1}
+          edgeOffset=${0.3}
+          strokeWidth=${0.01}
+          waitingTimeScale=${1}
+        />
+      </svg>
+    `
+    ReactDOM.render(html` <${SampleSvg} /> `, document.getElementById('root'))
+  </script>
+</body>
