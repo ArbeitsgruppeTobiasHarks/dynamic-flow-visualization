@@ -1,4 +1,3 @@
-import { map } from 'lodash'
 import React from 'react'
 import { SvgDefs, Vertex } from './DynFlowSvg'
 import { EdgesCoordinator } from './EdgesCoordinator'
@@ -39,14 +38,14 @@ export const DynamicFlowSvg = ({
         flow={flow}
         t={t}
       />
-      {map(network.nodesMap, (value, id) => {
+      {Object.values(network.nodesMap).map((node) => {
         return (
           <Vertex
-            key={id}
+            key={node.id}
             strokeWidth={strokeWidth}
             radius={nodeRadius}
-            pos={[value.x, value.y]}
-            label={value.label ?? value.id.toString()}
+            pos={[node.x, node.y]}
+            label={node.label ?? node.id.toString()}
           />
         )
       })}
