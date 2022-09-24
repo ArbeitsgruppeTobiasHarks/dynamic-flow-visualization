@@ -62,8 +62,12 @@ const App = () => {
         openFlowFromJsonText(reader.result)
       })
       reader.readAsText(file)
-      reader.addEventListener('abort', () => getAppToaster().show({ message: 'Could not read file.', intent: 'danger' }))
-      reader.addEventListener('error', () => getAppToaster().show({ message: 'Could not read file.', intent: 'danger' }))
+      reader.addEventListener('abort', () =>
+        getAppToaster().show({ message: 'Could not read file.', intent: 'danger' })
+      )
+      reader.addEventListener('error', () =>
+        getAppToaster().show({ message: 'Could not read file.', intent: 'danger' })
+      )
     }
   }
 

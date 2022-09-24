@@ -1,5 +1,5 @@
-import { Toaster } from "@blueprintjs/core"
-import { createRoot } from "react-dom/client"
+import { Toaster } from '@blueprintjs/core'
+import { createRoot } from 'react-dom/client'
 
 let AppToaster: Toaster
 
