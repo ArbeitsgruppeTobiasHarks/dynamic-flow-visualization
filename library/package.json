@@ -1,5 +1,5 @@
 {
-  "version": "0.2.0",
+  "version": "0.2.2",
   "license": "MIT",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -15,7 +15,7 @@
     "build": "tsdx build --format cjs,esm,umd --name DynamicFlowVisualization",
     "test": "tsdx test --passWithNoTests",
     "lint": "tsdx lint",
-    "prepare": "tsdx build"
+    "prepublishOnly": "npm run build"
   },
   "dependencies": {
     "lodash-es": ">=4"
@@ -25,7 +25,7 @@
   },
   "name": "dynamic-flow-visualization",
   "author": "Michael Markl",
-  "module": "dist/dynamic-flow-visualization.esm.js",
+  "module": "dist/dynamicflowvisualization.esm.js",
   "devDependencies": {
     "@types/lodash": "^4.14.185",
     "@types/react": "^18.0.21",
