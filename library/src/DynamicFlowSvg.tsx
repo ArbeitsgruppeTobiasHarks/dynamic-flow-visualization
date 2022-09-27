@@ -1,5 +1,5 @@
 import React from 'react'
-import { SvgDefs, Vertex } from './DynFlowSvg'
+import { DynamicFlowSvgDefs, Vertex } from './DynFlowSvg'
 import { EdgesCoordinator } from './EdgesCoordinator'
 import { Flow } from './Flow'
 import { Network } from './Network'
@@ -27,7 +27,7 @@ export const DynamicFlowSvg = ({
 }) => {
   return (
     <>
-      <SvgDefs svgIdPrefix={svgIdPrefix} />
+      <DynamicFlowSvgDefs svgIdPrefix={svgIdPrefix} />
       <EdgesCoordinator
         network={network}
         waitingTimeScale={waitingTimeScale}

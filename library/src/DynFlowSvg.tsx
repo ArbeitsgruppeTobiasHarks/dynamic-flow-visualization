@@ -66,7 +66,7 @@ export const splitOutflowSteps = (
   return { queueSteps, inEdgeSteps }
 }
 
-export const SvgDefs = ({ svgIdPrefix }: { svgIdPrefix: string }) => (
+export const DynamicFlowSvgDefs = ({ svgIdPrefix }: { svgIdPrefix: string }) => (
   <>
     <linearGradient id={`${svgIdPrefix}fade-grad`} x1="0" y1="1" y2="0" x2="0">
       <stop offset="0" stopColor="white" stopOpacity="0.5" />
