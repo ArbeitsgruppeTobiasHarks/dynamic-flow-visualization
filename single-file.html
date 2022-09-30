@@ -36,21 +36,55 @@
           }
         ]
       })
-
-      const SampleSvg = () => html`
-        <svg width="600" height="600" viewBox="-1 -2 3 3">
-          <${DynamicFlowSvg}
-            network=${network}
-            flow=${flow}
-            t=${1}
-            nodeRadius=${0.2}
-            flowScale=${0.1}
-            edgeOffset=${0.3}
-            strokeWidth=${0.01}
-            waitingTimeScale=${1}
-          />
-        </svg>
-      `
+      
+      
+      const SampleSvg = () => {
+        const [t, setT] = React.useState(0)
+        const [isPlaying, setIsPlaying] = React.useState(false)
+        
+        const autoplaySpeed = 1
+        
+        const onPlayClick = () => setIsPlaying(!isPlaying)
+        
+        React.useEffect(() => {
+          if (!isPlaying) {
+            return
+          }
+          let last_time_ms = Date.now()
+          let done = false
+          const callback = () => {
+            if (done) return
+            setT((t) => {
+              const new_time_ms = Date.now()
+              const delta_t = ((new_time_ms - last_time_ms) / 1000) * autoplaySpeed
+              last_time_ms = new_time_ms
+              return t + delta_t
+            })
+            requestAnimationFrame(callback)
+          }
+          requestAnimationFrame(callback)
+          return () => {
+            done = true
+          }
+        }, [isPlaying])
+        
+      
+        return html`
+          <svg width="600" height="600" viewBox="-1 -2 3 3">
+            <${DynamicFlowSvg}
+              network=${network}
+              flow=${flow}
+              t=${t}
+              nodeRadius=${0.2}
+              flowScale=${0.1}
+              edgeOffset=${0.3}
+              strokeWidth=${0.01}
+              waitingTimeScale=${1}
+            />
+          </svg>
+          <button onClick=${onPlayClick}>${isPlaying ? "⏸︎" : "►"}</button>
+        `
+      }
       ReactDOM.render(html` <${SampleSvg} /> `, document.getElementById('root'))
     </script>
   </body>
