@@ -270,6 +270,7 @@ export const DynamicFlowViewer = (props: { network: Network; flow: Flow }) => {
             network={scaledNetwork}
             flow={props.flow}
           />
+          <SvgExportFrame svgExportViewBox={null} strokeWidth={strokeWidth} />
         </svg>
         <div style={{ position: 'absolute', bottom: '16px', right: 0 }}>
           <div style={{ padding: '8px' }}>
@@ -288,6 +289,18 @@ export const DynamicFlowViewer = (props: { network: Network; flow: Flow }) => {
       </div>
     </>
   )
+}
+
+const SvgExportFrame = (props: {
+  svgExportViewBox: { x: number; y: number; width: number; height: number } | null
+  strokeWidth: number
+}) => {
+  if (!props.svgExportViewBox) {
+    return null
+  } else {
+    const { x, y, width, height } = props.svgExportViewBox
+    return <rect x={x} y={y} width={width} height={height} fill="none" stroke="gray" strokeWidth={props.strokeWidth} />
+  }
 }
 
 const ViewOptionsCard = (props: {
