@@ -36,16 +36,15 @@
           }
         ]
       })
-      
-      
+
       const SampleSvg = () => {
         const [t, setT] = React.useState(0)
         const [isPlaying, setIsPlaying] = React.useState(false)
-        
+
         const autoplaySpeed = 1
-        
+
         const onPlayClick = () => setIsPlaying(!isPlaying)
-        
+
         React.useEffect(() => {
           if (!isPlaying) {
             return
@@ -67,8 +66,7 @@
             done = true
           }
         }, [isPlaying])
-        
-      
+
         return html`
           <svg width="600" height="600" viewBox="-1 -2 3 3">
             <${DynamicFlowSvg}
@@ -82,7 +80,7 @@
               waitingTimeScale=${1}
             />
           </svg>
-          <button onClick=${onPlayClick}>${isPlaying ? "⏸︎" : "►"}</button>
+          <button onClick=${onPlayClick}>${isPlaying ? '⏸︎' : '►'}</button>
         `
       }
       ReactDOM.render(html` <${SampleSvg} /> `, document.getElementById('root'))

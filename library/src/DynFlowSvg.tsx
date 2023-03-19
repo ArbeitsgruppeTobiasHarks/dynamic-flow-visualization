@@ -84,7 +84,11 @@ export const splitOutflowSteps = (
 
     const inQueueStart = accSize / capacity
     const inQueueEnd = Math.min(accSize + stepSize, queueSize) / capacity
-    queueSteps.push({ start: -inQueueEnd, end: -inQueueStart, values: step.values.map(({ color, value }) => ({ color, value: value / stepCapacity * capacity })) })
+    queueSteps.push({
+      start: -inQueueEnd,
+      end: -inQueueStart,
+      values: step.values.map(({ color, value }) => ({ color, value: (value / stepCapacity) * capacity }))
+    })
     accSize += stepSize
     if (accSize >= queueSize) break
   }
