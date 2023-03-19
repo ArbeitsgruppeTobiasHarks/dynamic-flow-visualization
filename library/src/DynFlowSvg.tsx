@@ -1,4 +1,4 @@
-import { flatten, values } from 'lodash'
+import { flatten, sumBy, values } from 'lodash'
 import React from 'react'
 import { mergeLists } from './ArrayUtils'
 import { RatesCollection } from './Flow'
@@ -41,19 +41,15 @@ export const splitOutflowSteps = (
   capacity: number,
   t: number
 ) => {
-  const queueSteps = []
   const inEdgeSteps = []
-
-  const queueLength = queue.eval(t) / capacity
+  const tPlusTransitTime = t + transitTime
 
   for (let step of outflowSteps) {
     const relStart = step.start - t
     const relEnd = step.end - t
 
-    const queueStart = Math.max(transitTime - relEnd, -queueLength)
-    const queueEnd = Math.min(transitTime - relStart, 0)
-    if (queueStart < queueEnd) {
-      queueSteps.push({ start: queueStart, end: queueEnd, values: step.values })
+    if (step.start > tPlusTransitTime) {
+      break
     }
 
     const inEdgeStart = Math.max(relStart, 0)
@@ -61,6 +57,36 @@ export const splitOutflowSteps = (
     if (inEdgeStart < inEdgeEnd) {
       inEdgeSteps.push({ start: inEdgeStart, end: inEdgeEnd, values: step.values })
     }
+  }
+
+  const queueSteps: FlowStep[] = []
+
+  const queueSize = queue.eval(t)
+  if (queueSize <= 0) return { queueSteps, inEdgeSteps }
+
+  let firstIndexInQueue = null
+  for (let i = 0; i < outflowSteps.length; i++) {
+    const step = outflowSteps[i]
+    if (step.end >= tPlusTransitTime) {
+      firstIndexInQueue = i
+      break
+    }
+  }
+  if (firstIndexInQueue === null) return { queueSteps, inEdgeSteps }
+
+  let accSize = 0
+  for (let i = firstIndexInQueue; i < outflowSteps.length; i++) {
+    const step = outflowSteps[i]
+    const stepCapacity = sumBy(step.values, ({ value }) => value)
+    if (stepCapacity <= 0) continue
+
+    const stepSize = stepCapacity * (step.end - Math.max(tPlusTransitTime, step.start))
+
+    const inQueueStart = accSize / capacity
+    const inQueueEnd = Math.min(accSize + stepSize, queueSize) / capacity
+    queueSteps.push({ start: -inQueueEnd, end: -inQueueStart, values: step.values.map(({ color, value }) => ({ color, value: value / stepCapacity * capacity })) })
+    accSize += stepSize
+    if (accSize >= queueSize) break
   }
 
   return { queueSteps, inEdgeSteps }
