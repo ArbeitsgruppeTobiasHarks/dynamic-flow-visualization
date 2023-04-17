@@ -1,7 +1,7 @@
-import { mapValues } from 'lodash'
 import { CommodityId } from './Network'
 import { PiecewiseLinear } from './PiecewiseLinear'
 import { RightConstant } from './RightConstant'
+import { mapValues } from './utils'
 
 export type RatesCollection = { [commodity in CommodityId]: RightConstant }
 

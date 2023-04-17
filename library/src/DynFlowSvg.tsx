@@ -1,10 +1,10 @@
-import { flatten, sumBy, values } from 'lodash'
 import React from 'react'
 import { mergeLists } from './ArrayUtils'
 import { RatesCollection } from './Flow'
 import { Commodity, CommodityId, EdgeId } from './Network'
 import { d } from './PathData'
 import { PiecewiseLinear } from './PiecewiseLinear'
+import { RightConstant } from './RightConstant'
 
 type ColorType = string
 
@@ -18,7 +18,7 @@ export const calcOutflowSteps = (
   outflow: RatesCollection,
   commodities: { [commodity in CommodityId]: Commodity }
 ): FlowStep[] => {
-  const outflowTimes = mergeLists(values(outflow).map((pwConstant) => pwConstant.times))
+  const outflowTimes = mergeLists(Object.values(outflow).map((pwConstant: RightConstant) => pwConstant.times))
   // Every two subsequent values in outflowTimes correspond to a flow step.
   const flowSteps = []
   for (let i = 0; i < outflowTimes.length - 1; i++) {
@@ -77,7 +77,7 @@ export const splitOutflowSteps = (
   let accSize = 0
   for (let i = firstIndexInQueue; i < outflowSteps.length; i++) {
     const step = outflowSteps[i]
-    const stepCapacity = sumBy(step.values, ({ value }) => value)
+    const stepCapacity = step.values.reduce((acc, comm) => acc + comm.value, 0)
     if (stepCapacity <= 0) continue
 
     const stepSize = stepCapacity * (step.end - Math.max(tPlusTransitTime, step.start))
@@ -183,8 +183,8 @@ export const BaseEdge = ({
         fill="white"
         stroke="none"
       />
-      {flatten(
-        inEdgeSteps.map(({ start, end, values }, index1) => {
+      {inEdgeSteps
+        .map(({ start, end, values }, index1) => {
           const s = values.reduce((acc, { value }) => acc + value, 0) * flowScale
           let y = edgeStart[1] - s / 2
           return values.map(({ color, value }, index2) => {
@@ -202,10 +202,10 @@ export const BaseEdge = ({
             )
           })
         })
-      )}
+        .flat()}
       <g mask={`url(#${svgIdPrefix}fade-mask)`}>
-        {flatten(
-          queueSteps.map(({ start, end, values }, index1) => {
+        {queueSteps
+          .map(({ start, end, values }, index1) => {
             let x = edgeStart[0] - width
             return values
               .slice(0)
@@ -225,7 +225,7 @@ export const BaseEdge = ({
                 )
               })
           })
-        )}
+          .flat()}
       </g>
       <path
         stroke="gray"
