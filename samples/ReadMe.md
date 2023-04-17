@@ -1,0 +1,6 @@
+* SimpleExampleNonDE.json: A simple example of a Vickrey flow which is not a Dynamic Equilibrium  (exact)
+* SimpleExampleDE.json: A Dynamic Equilibrium in the network from SimpleExampleNonDE.json (exact)
+* OvertakingInEFDE.json: An example for an energy-feasible dynamic equilibrium with overtaking (numeric approximation)
+* NoOvertakingInDE.json: A dynamic equilibrium in the network from OvertakingInEFDE.json (numeric approximation)
+* WithoutRecharging.json: An energy feasible dynamic equilibrium without recharging in the Nguyen network (numeric approximation)
+* WithRecharging.json: An energy feasible dynamic equilibrium with recharging in the Nguyen network (numeric approximation)
