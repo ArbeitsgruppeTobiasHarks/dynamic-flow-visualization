@@ -71,7 +71,6 @@ const useScaledNetwork = (network: Network, boundingBox: { x0: number; y0: numbe
     const translateX = boundingBox.x0
     const translateY = boundingBox.y0
     const scale = 1000 / Math.max(boundingBox.width, boundingBox.height)
-
     const scaledNodesMap = _.mapValues(network.nodesMap, (node) => ({
       id: node.id,
       label: node.label,

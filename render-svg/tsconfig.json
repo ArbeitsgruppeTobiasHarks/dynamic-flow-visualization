@@ -26,6 +26,6 @@
       "library/*": ["../library/*"]
     }
   },
-  "include": ["src"],
+  "include": ["src", "../render-svg/renderSvg.tsx"],
   "references": [{ "path": "../library" }]
 }
