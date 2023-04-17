@@ -1,0 +1,550 @@
+{
+  "network": {
+    "nodes": [
+      {
+        "id": "s",
+        "x": 0,
+        "y": 0
+      },
+      {
+        "id": "v",
+        "x": 2,
+        "y": 0
+      },
+      {
+        "id": "w",
+        "x": 3,
+        "y": 1.5
+      },
+      {
+        "id": "t",
+        "x": 4,
+        "y": 0
+      }
+    ],
+    "edges": [
+      {
+        "id": 0,
+        "from": "s",
+        "to": "v",
+        "capacity": 2,
+        "transitTime": 1
+      },
+      {
+        "id": 1,
+        "from": "v",
+        "to": "t",
+        "capacity": 1,
+        "transitTime": 1
+      },
+      {
+        "id": 2,
+        "from": "v",
+        "to": "w",
+        "capacity": 1,
+        "transitTime": 1
+      },
+      {
+        "id": 3,
+        "from": "w",
+        "to": "t",
+        "capacity": 1,
+        "transitTime": 1
+      }
+    ],
+    "commodities": [
+      {
+        "id": 0,
+        "color": "#FF1F5B"
+      },
+      {
+        "id": 1,
+        "color": "#FF1F5B"
+      },
+      {
+        "id": 2,
+        "color": "#00CD6C"
+      },
+      {
+        "id": 3,
+        "color": "#00CD6C"
+      },
+      {
+        "id": 4,
+        "color": "#009ADE"
+      },
+      {
+        "id": 5,
+        "color": "#009ADE"
+      },
+      {
+        "id": 6,
+        "color": "#AF58BA"
+      },
+      {
+        "id": 7,
+        "color": "#AF58BA"
+      },
+      {
+        "id": 8,
+        "color": "#F28522"
+      },
+      {
+        "id": 9,
+        "color": "#F28522"
+      }
+    ]
+  },
+  "flow": {
+    "inflow": [
+      [
+        {
+          "times": [0, 0, 0.2, 1, 1.2],
+          "values": [0, 2, 0, 1, 0],
+          "domain": [0, "Infinity"]
+        },
+        {
+          "times": [0, 1, 1.2],
+          "values": [0, 1, 0],
+          "domain": [0, "Infinity"]
+        },
+        {
+          "times": [0, 0.2, 0.4, 1.2, 1.4],
+          "values": [0, 2, 0, 1, 0],
+          "domain": [0, "Infinity"]
+        },
+        {
+          "times": [0, 1.2, 1.4],
+          "values": [0, 1, 0],
+          "domain": [0, "Infinity"]
+        },
+        {
+          "times": [0, 0.4, 0.6, 1.4, 1.6],
+          "values": [0, 2, 0, 1, 0],
+          "domain": [0, "Infinity"]
+        },
+        {
+          "times": [0, 1.4, 1.6],
+          "values": [0, 1, 0],
+          "domain": [0, "Infinity"]
+        },
+        {
+          "times": [0, 0.6, 0.8, 1.6, 1.8],
+          "values": [0, 2, 0, 1, 0],
+          "domain": [0, "Infinity"]
+        },
+        {
+          "times": [0, 1.6, 1.8],
+          "values": [0, 1, 0],
+          "domain": [0, "Infinity"]
+        },
+        {
+          "times": [0, 0.8, 1, 1.8, 2],
+          "values": [0, 2, 0, 1, 0],
+          "domain": [0, "Infinity"]
+        },
+        {
+          "times": [0, 1.8, 2],
+          "values": [0, 1, 0],
+          "domain": [0, "Infinity"]
+        }
+      ],
+      [
+        {
+          "times": [0, 1, 1.2, 2, 2.2],
+          "values": [0, 2, 0, 1, 0],
+          "domain": [0, "Infinity"]
+        },
+        {
+          "times": [0],
+          "values": [0],
+          "domain": [0, "Infinity"]
+        },
+        {
+          "times": [0, 1.2, 1.4, 2.2, 2.4],
+          "values": [0, 2, 0, 1, 0],
+          "domain": [0, "Infinity"]
+        },
+        {
+          "times": [0],
+          "values": [0],
+          "domain": [0, "Infinity"]
+        },
+        {
+          "times": [0, 1.4, 1.6, 2.4, 2.6],
+          "values": [0, 2, 0, 1, 0],
+          "domain": [0, "Infinity"]
+        },
+        {
+          "times": [0],
+          "values": [0],
+          "domain": [0, "Infinity"]
+        },
+        {
+          "times": [0, 1.6, 1.8, 2.6, 2.8],
+          "values": [0, 2, 0, 1, 0],
+          "domain": [0, "Infinity"]
+        },
+        {
+          "times": [0],
+          "values": [0],
+          "domain": [0, "Infinity"]
+        },
+        {
+          "times": [0, 1.8, 2, 2.8, 3],
+          "values": [0, 2, 0, 1, 0],
+          "domain": [0, "Infinity"]
+        },
+        {
+          "times": [0],
+          "values": [0],
+          "domain": [0, "Infinity"]
+        }
+      ],
+      [
+        {
+          "times": [0],
+          "values": [0],
+          "domain": [0, "Infinity"]
+        },
+        {
+          "times": [0, 2, 2.2],
+          "values": [0, 1, 0],
+          "domain": [0, "Infinity"]
+        },
+        {
+          "times": [0],
+          "values": [0],
+          "domain": [0, "Infinity"]
+        },
+        {
+          "times": [0, 2.2, 2.4],
+          "values": [0, 1, 0],
+          "domain": [0, "Infinity"]
+        },
+        {
+          "times": [0],
+          "values": [0],
+          "domain": [0, "Infinity"]
+        },
+        {
+          "times": [0, 2.4, 2.6],
+          "values": [0, 1, 0],
+          "domain": [0, "Infinity"]
+        },
+        {
+          "times": [0],
+          "values": [0],
+          "domain": [0, "Infinity"]
+        },
+        {
+          "times": [0, 2.6, 2.8],
+          "values": [0, 1, 0],
+          "domain": [0, "Infinity"]
+        },
+        {
+          "times": [0],
+          "values": [0],
+          "domain": [0, "Infinity"]
+        },
+        {
+          "times": [0, 2.8, 3],
+          "values": [0, 1, 0],
+          "domain": [0, "Infinity"]
+        }
+      ],
+      [
+        {
+          "times": [0],
+          "values": [0],
+          "domain": [0, "Infinity"]
+        },
+        {
+          "times": [0, 3, 3.2],
+          "values": [0, 1, 0],
+          "domain": [0, "Infinity"]
+        },
+        {
+          "times": [0],
+          "values": [0],
+          "domain": [0, "Infinity"]
+        },
+        {
+          "times": [0, 3.2, 3.4],
+          "values": [0, 1, 0],
+          "domain": [0, "Infinity"]
+        },
+        {
+          "times": [0],
+          "values": [0],
+          "domain": [0, "Infinity"]
+        },
+        {
+          "times": [0, 3.4, 3.6],
+          "values": [0, 1, 0],
+          "domain": [0, "Infinity"]
+        },
+        {
+          "times": [0],
+          "values": [0],
+          "domain": [0, "Infinity"]
+        },
+        {
+          "times": [0, 3.6, 3.8],
+          "values": [0, 1, 0],
+          "domain": [0, "Infinity"]
+        },
+        {
+          "times": [0],
+          "values": [0],
+          "domain": [0, "Infinity"]
+        },
+        {
+          "times": [0, 3.8],
+          "values": [0, 1],
+          "domain": [0, "Infinity"]
+        }
+      ]
+    ],
+    "outflow": [
+      [
+        {
+          "times": [0, 1, 1.2, 2, 2.2],
+          "values": [0, 2, 0, 1, 0],
+          "domain": [0, "Infinity"]
+        },
+        {
+          "times": [0, 2, 2.2],
+          "values": [0, 1, 0],
+          "domain": [0, "Infinity"]
+        },
+        {
+          "times": [0, 1.2, 1.4, 2.2, 2.4],
+          "values": [0, 2, 0, 1, 0],
+          "domain": [0, "Infinity"]
+        },
+        {
+          "times": [0, 2.2, 2.4],
+          "values": [0, 1, 0],
+          "domain": [0, "Infinity"]
+        },
+        {
+          "times": [0, 1.4, 1.6, 2.4, 2.6],
+          "values": [0, 2, 0, 1, 0],
+          "domain": [0, "Infinity"]
+        },
+        {
+          "times": [0, 2.4, 2.6],
+          "values": [0, 1, 0],
+          "domain": [0, "Infinity"]
+        },
+        {
+          "times": [0, 1.6, 1.8, 2.6, 2.8],
+          "values": [0, 2, 0, 1, 0],
+          "domain": [0, "Infinity"]
+        },
+        {
+          "times": [0, 2.6, 2.8],
+          "values": [0, 1, 0],
+          "domain": [0, "Infinity"]
+        },
+        {
+          "times": [0, 1.8, 2, 2.8, 3],
+          "values": [0, 2, 0, 1, 0],
+          "domain": [0, "Infinity"]
+        },
+        {
+          "times": [0, 2.8, 3],
+          "values": [0, 1, 0],
+          "domain": [0, "Infinity"]
+        }
+      ],
+      [
+        {
+          "times": [0, 2, 2.4, 4, 4.2],
+          "values": [0, 1, 0, 1, 0],
+          "domain": [0, "Infinity"]
+        },
+        {
+          "times": [0],
+          "values": [0],
+          "domain": [0, "Infinity"]
+        },
+        {
+          "times": [0, 2.4, 2.8, 4.2, 4.4],
+          "values": [0, 1, 0, 1, 0],
+          "domain": [0, "Infinity"]
+        },
+        {
+          "times": [0],
+          "values": [0],
+          "domain": [0, "Infinity"]
+        },
+        {
+          "times": [0, 2.8, 3.2, 4.4, 4.6],
+          "values": [0, 1, 0, 1, 0],
+          "domain": [0, "Infinity"]
+        },
+        {
+          "times": [0],
+          "values": [0],
+          "domain": [0, "Infinity"]
+        },
+        {
+          "times": [0, 3.2, 3.6, 4.6, 4.8],
+          "values": [0, 1, 0, 1, 0],
+          "domain": [0, "Infinity"]
+        },
+        {
+          "times": [0],
+          "values": [0],
+          "domain": [0, "Infinity"]
+        },
+        {
+          "times": [0, 3.6, 4, 4.8],
+          "values": [0, 1, 0, 1],
+          "domain": [0, "Infinity"]
+        },
+        {
+          "times": [0],
+          "values": [0],
+          "domain": [0, "Infinity"]
+        }
+      ],
+      [
+        {
+          "times": [0],
+          "values": [0],
+          "domain": [0, "Infinity"]
+        },
+        {
+          "times": [0, 3, 3.2],
+          "values": [0, 1, 0],
+          "domain": [0, "Infinity"]
+        },
+        {
+          "times": [0],
+          "values": [0],
+          "domain": [0, "Infinity"]
+        },
+        {
+          "times": [0, 3.2, 3.4],
+          "values": [0, 1, 0],
+          "domain": [0, "Infinity"]
+        },
+        {
+          "times": [0],
+          "values": [0],
+          "domain": [0, "Infinity"]
+        },
+        {
+          "times": [0, 3.4, 3.6],
+          "values": [0, 1, 0],
+          "domain": [0, "Infinity"]
+        },
+        {
+          "times": [0],
+          "values": [0],
+          "domain": [0, "Infinity"]
+        },
+        {
+          "times": [0, 3.6, 3.8],
+          "values": [0, 1, 0],
+          "domain": [0, "Infinity"]
+        },
+        {
+          "times": [0],
+          "values": [0],
+          "domain": [0, "Infinity"]
+        },
+        {
+          "times": [0, 3.8, 4],
+          "values": [0, 1, 0],
+          "domain": [0, "Infinity"]
+        }
+      ],
+      [
+        {
+          "times": [0],
+          "values": [0],
+          "domain": [0, "Infinity"]
+        },
+        {
+          "times": [0, 4, 4.2],
+          "values": [0, 1, 0],
+          "domain": [0, "Infinity"]
+        },
+        {
+          "times": [0],
+          "values": [0],
+          "domain": [0, "Infinity"]
+        },
+        {
+          "times": [0, 4.2, 4.4],
+          "values": [0, 1, 0],
+          "domain": [0, "Infinity"]
+        },
+        {
+          "times": [0],
+          "values": [0],
+          "domain": [0, "Infinity"]
+        },
+        {
+          "times": [0, 4.4, 4.6],
+          "values": [0, 1, 0],
+          "domain": [0, "Infinity"]
+        },
+        {
+          "times": [0],
+          "values": [0],
+          "domain": [0, "Infinity"]
+        },
+        {
+          "times": [0, 4.6, 4.8],
+          "values": [0, 1, 0],
+          "domain": [0, "Infinity"]
+        },
+        {
+          "times": [0],
+          "values": [0],
+          "domain": [0, "Infinity"]
+        },
+        {
+          "times": [0, 4.8],
+          "values": [0, 1],
+          "domain": [0, "Infinity"]
+        }
+      ]
+    ],
+    "queues": [
+      {
+        "times": [0],
+        "values": [0],
+        "domain": ["-Infinity", "Infinity"],
+        "lastSlope": 0,
+        "firstSlope": 0
+      },
+      {
+        "times": [0, 1, 2, 3, 4],
+        "values": [0, 0, 1, 1, 0],
+        "domain": ["-Infinity", "Infinity"],
+        "lastSlope": 0,
+        "firstSlope": 0
+      },
+      {
+        "times": [0],
+        "values": [0],
+        "domain": ["-Infinity", "Infinity"],
+        "lastSlope": 0,
+        "firstSlope": 0
+      },
+      {
+        "times": [0],
+        "values": [0],
+        "domain": ["-Infinity", "Infinity"],
+        "lastSlope": 0,
+        "firstSlope": 0
+      }
+    ]
+  }
+}
