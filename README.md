@@ -4,10 +4,10 @@ This repo contains JS-based tools for visualizing dynamic traffic flows.
 
 It consists of four sub-repos:
 
-- `library`: Contains all necessary React components to render an SVG based on a network flow instance.
-- `render-svg`: A sample repo that shows how to use the library to create static svgs for use in LaTeX.
-- `samples`: Contains sample flow instances including samples of dynamic equilibria, dynamic prediction equilibria, and more.
-- `viewer`: A UI wrapper around `library` that allows to visualize and explore flows interactively.
+- [library](./library): Contains all necessary React components to render an SVG based on a network flow instance.
+- [render-svg](./render-svg): A sample repo that shows how to use the library to create static svgs for use in LaTeX.
+- [samples](./samples): Contains sample flow instances including samples of dynamic equilibria, dynamic prediction equilibria, and more.
+- [viewer](./viewer): A UI wrapper around `library` that allows to visualize and explore flows interactively.
 
 ## Viewer
 
