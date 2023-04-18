@@ -12,7 +12,8 @@
   },
   "scripts": {
     "prepare": "husky install",
-    "prettier": "prettier --write ."
+    "prettier": "prettier --write .",
+    "prettier:check": "prettier --check ."
   },
   "prettier": {
     "printWidth": 120,
