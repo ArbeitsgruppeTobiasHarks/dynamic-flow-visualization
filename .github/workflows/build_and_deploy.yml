@@ -16,7 +16,7 @@ jobs:
           PUBLIC_URL="/dynamic-flow-visualization/" npm run build --workspaces
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@v4.2.2
-        if: ${{ github.ref_name == 'main' }}
+        if: github.ref_name == 'main'
         with:
           branch: gh-pages # The branch the action should deploy to.
           folder: viewer/build # The folder the action should deploy.
