@@ -177,7 +177,7 @@ const range = (start: number, stop: number, step: number) =>
 const times = range(0, 16.5, 0.5)
 
 const figures = times.reduce((acc: { [path: string]: ReactElement }, t, i) => {
-  acc[`illustration${i}.svg`] = <SvgContent t={t} />
+  acc[`train-example${i}.svg`] = <SvgContent t={t} />
   return acc
 }, {})
 

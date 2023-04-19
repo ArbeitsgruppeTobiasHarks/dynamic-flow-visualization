@@ -16,4 +16,4 @@ The viewer is deployed at [arbeitsgruppetobiasharks.github.io/dynamic-flow-visua
 ## Usage example in an HTML file
 
 You can embed the library in an HTML file using `unpkg.com`.
-In [single-file.html](./single-file.html), there is a sample setup showing how you can use the package in your JS-based presentation.
+In [single-file.html](./single-file.html), there is a sample setup showing how you could use the package in your JS-based presentation.
