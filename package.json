@@ -3,15 +3,15 @@
   "private": true,
   "workspaces": [
     "library",
+    "samples",
+    "render-svg",
     "viewer"
   ],
   "devDependencies": {
     "prettier": "^2.8.7",
-    "react": "^18.2.0",
-    "husky": "^8.0.3"
+    "react": "^18.2.0"
   },
   "scripts": {
-    "prepare": "husky install",
     "prettier": "prettier --write .",
     "prettier:check": "prettier --check ."
   },
