@@ -1,7 +1,21 @@
 import React from 'react'
 import { d } from '../../library/src/PathData'
 
-export const StopWatch = ({ t, y, x, size, strokeWidth, maxT }: { t: number, y: number, x: number, size: number, strokeWidth: number, maxT: number }) => {
+export const StopWatch = ({
+  t,
+  y,
+  x,
+  size,
+  strokeWidth,
+  maxT
+}: {
+  t: number
+  y: number
+  x: number
+  size: number
+  strokeWidth: number
+  maxT: number
+}) => {
   const cx = x + size / 2
   const cy = y + size / 2
   const radius = size / 2
@@ -9,7 +23,12 @@ export const StopWatch = ({ t, y, x, size, strokeWidth, maxT }: { t: number, y: 
   const pointerRadians = (t / maxT) * 2 * Math.PI
   return (
     <>
-      <path d={d.M(cx, y) + d.v(-0.125 * size) + d.h(-0.075 * size) + d.h(0.15 * size)} fill="none" stroke="black" strokeWidth={size / 20} />
+      <path
+        d={d.M(cx, y) + d.v(-0.125 * size) + d.h(-0.075 * size) + d.h(0.15 * size)}
+        fill="none"
+        stroke="black"
+        strokeWidth={size / 20}
+      />
       <path
         transform={`rotate(30 ${cx} ${cy})`}
         d={d.M(cx, y) + d.v(-0.075 * size) + d.h(-0.05 * size) + d.h(0.1 * size)}

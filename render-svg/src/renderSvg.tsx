@@ -56,7 +56,14 @@ const SvgContent = ({ t }: { t: number }) => {
       width={scaledWidth}
       height={scaledHeight}
     >
-      <StopWatch t={t} x={left + strokeWidth} y={top + strokeWidth + height / 20} size={height / 10} maxT={16.5} strokeWidth={strokeWidth} />
+      <StopWatch
+        t={t}
+        x={left + strokeWidth}
+        y={top + strokeWidth + height / 20}
+        size={height / 10}
+        maxT={16.5}
+        strokeWidth={strokeWidth}
+      />
       <FlowEdge
         svgIdPrefix={svgIdPrefix}
         outflowSteps={calcOutflowSteps(flow.inflow[0], network.commoditiesMap)}

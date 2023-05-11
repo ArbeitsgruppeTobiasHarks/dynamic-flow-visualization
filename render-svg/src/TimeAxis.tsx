@@ -55,14 +55,14 @@ const TimeAxis = ({
         )
       })}
 
-          <path
-              strokeLinejoin="round"
-              strokeLinecap="round"
-              d={`M ${xPosT} ${yPos - tickSize / 2} v ${tickSize}`}
-              fill="none"
-              strokeWidth={strokeWidth}
-              stroke="black"
-          />
+      <path
+        strokeLinejoin="round"
+        strokeLinecap="round"
+        d={`M ${xPosT} ${yPos - tickSize / 2} v ${tickSize}`}
+        fill="none"
+        strokeWidth={strokeWidth}
+        stroke="black"
+      />
       <text x={xPosEnd + 0.05} y={yPos} alignmentBaseline="middle" textAnchor="start" fontSize={fontSize}>
         {String.raw`\raisebox{-.5\totalheight}{Zeit}`}
       </text>
