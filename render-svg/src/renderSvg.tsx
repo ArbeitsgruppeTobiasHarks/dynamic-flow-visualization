@@ -9,6 +9,8 @@ import path from 'path'
 
 import { Flow, Network } from 'dynamic-flow-visualization'
 import sampleData from 'samples/json/TinyDynamicCapacity.json'
+import TimeAxis from './TimeAxis'
+import { StopWatch } from './StopWatch'
 
 export const network = Network.fromJson(sampleData['network'])
 export const flow = Flow.fromJson(sampleData['flow'])
@@ -35,18 +37,12 @@ const scaledWidth = 300
 const scaledHeight = (height / width) * scaledWidth
 
 export const DynamicFlowSvgDefs = ({ svgIdPrefix }: { svgIdPrefix: string }) => (
-  <>
-    <linearGradient id={`${svgIdPrefix}fade-grad`} x1="0" y1="1" y2="0" x2="0">
-      <stop offset="0" stopColor="white" stopOpacity="1" />
-      <stop offset="1" stopColor="white" stopOpacity="1" />
-    </linearGradient>
-    <mask id={`${svgIdPrefix}fade-mask`} maskContentUnits="objectBoundingBox">
-      <rect width="1" height="1" fill="#fff" />
-    </mask>
-  </>
+  <mask id={`${svgIdPrefix}fade-mask`} maskContentUnits="objectBoundingBox">
+    <rect width="1" height="1" fill="#fff" />
+  </mask>
 )
 
-const arrowLength = 0.05
+const fontSize = radius / 2
 
 const SvgContent = ({ t }: { t: number }) => {
   const svgIdPrefix = ''
@@ -60,6 +56,7 @@ const SvgContent = ({ t }: { t: number }) => {
       width={scaledWidth}
       height={scaledHeight}
     >
+      <StopWatch t={t} x={left + strokeWidth} y={top + strokeWidth + height / 20} size={height / 10} maxT={16.5} strokeWidth={strokeWidth} />
       <FlowEdge
         svgIdPrefix={svgIdPrefix}
         outflowSteps={calcOutflowSteps(flow.inflow[0], network.commoditiesMap)}
@@ -98,75 +95,28 @@ const SvgContent = ({ t }: { t: number }) => {
       <Label pos={sPos}>$s$</Label>
       <Vertex pos={tPos} radius={radius} strokeWidth={strokeWidth} label="" />
       <Label pos={tPos}>$t$</Label>
-      <TimeAxis t={t} />
+      <TimeAxis
+        {...{
+          t,
+          strokeWidth,
+          fontSize,
+          timeFrom: 0,
+          timeTo: 16.5,
+          yPos: 0.5,
+          xPosStart: left,
+          xPosEnd: left + width - 0.4,
+          redIntervals: [
+            [6, 6.5],
+            [12, 12.5]
+          ]
+        }}
+      />
     </svg>
   )
 }
 
-const TimeAxis = ({ t }: { t: number }) => {
-  const xStart = left
-  const t0 = 0
-
-  const xEnd = left + width - 0.4
-  const t1 = 16.5
-
-  const x = xStart + ((t - t0) / (t1 - t0)) * (xEnd - xStart)
-  const train1X = xStart + ((6 - t0) / (t1 - t0)) * (xEnd - xStart)
-  const train2X = xStart + ((12 - t0) / (t1 - t0)) * (xEnd - xStart)
-
-  const yAxis = 0.5
-  const tickSize = 0.08
-  const loadingInterval = 0.5
-  const loadingSize = (loadingInterval / (t1 - t0)) * (xEnd - xStart)
-
-  return (
-    <>
-      <path
-        strokeLinejoin="round"
-        strokeLinecap="round"
-        d={`M${xStart} ${yAxis} H ${xEnd} l ${-arrowLength} ${arrowLength} m ${arrowLength} ${-arrowLength} l ${-arrowLength} ${-arrowLength}`}
-        fill="none"
-        strokeWidth={strokeWidth}
-        stroke="black"
-      />
-      <text x={x} y={yAxis - 2 * tickSize} alignmentBaseline="baseline" textAnchor="middle" fontSize={radius / 2}>
-        {String.raw`\raisebox{-.5\totalheight}{$\theta$}`}
-      </text>
-      <path
-        strokeLinejoin="round"
-        strokeLinecap="round"
-        d={`M ${train1X} ${yAxis - tickSize / 2} v ${tickSize} h ${loadingSize} v ${-tickSize} z`}
-        fill="red"
-        strokeWidth={strokeWidth}
-        stroke="red"
-      />
-      <path
-        strokeLinejoin="round"
-        strokeLinecap="round"
-        d={`M ${train2X} ${yAxis - tickSize / 2} v ${tickSize} h ${loadingSize} v ${-tickSize} z`}
-        fill="red"
-        strokeWidth={strokeWidth}
-        stroke="red"
-      />
-
-      <path
-        strokeLinejoin="round"
-        strokeLinecap="round"
-        d={`M ${x} ${yAxis - tickSize / 2} v ${tickSize}`}
-        fill="none"
-        strokeWidth={strokeWidth}
-        stroke="black"
-      />
-
-      <text x={xEnd + 0.05} y={yAxis} alignmentBaseline="middle" textAnchor="start" fontSize={radius / 2}>
-        {String.raw`\raisebox{-.5\totalheight}{Zeit}`}
-      </text>
-    </>
-  )
-}
-
 const Label = ({ pos, children }: { pos: [number, number]; children: ReactNode }) => (
-  <text x={pos[0]} y={pos[1]} alignmentBaseline="middle" textAnchor="middle" fontSize={radius / 2}>
+  <text x={pos[0]} y={pos[1]} alignmentBaseline="middle" textAnchor="middle" fontSize={fontSize}>
     {String.raw`\raisebox{-.5\totalheight}{${children}}`}
   </text>
 )

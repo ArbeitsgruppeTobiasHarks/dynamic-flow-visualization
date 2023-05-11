@@ -11,7 +11,7 @@
     "typescript": "^5.0.4"
   },
   "scripts": {
-    "build": "ts-node ./renderSvg.tsx"
+    "build": "ts-node src/renderSvg.tsx"
   },
   "devDependencies": {
     "@types/node": "^18.15.11",

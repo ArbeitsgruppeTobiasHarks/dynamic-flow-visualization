@@ -8,5 +8,7 @@ export const d = {
   H: (x: number) => `H${x}`,
   v: (y: number) => `v${y}`,
   m: (x: number, y: number) => `m${x} ${y}`,
-  z: 'z'
+  z: 'z',
+  A: (rx: number, ry: number, xAxisRotation: number, largeArcFlag: 0 | 1, sweepFlag: 0 | 1, x: number, y: number) =>
+    `A${rx} ${ry} ${xAxisRotation} ${largeArcFlag} ${sweepFlag} ${x} ${y}`,
 }
