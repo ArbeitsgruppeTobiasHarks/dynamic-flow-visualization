@@ -7,9 +7,7 @@
     }
   },
   "compilerOptions": {
-    "module": "es6",
-    "target": "es5",
-    "sourceMap": true,
+    "target": "es2015",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
@@ -18,14 +16,16 @@
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
+    "module": "esnext",
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
+    "noEmit": true,
     "jsx": "react-jsx",
     "paths": {
       "library/*": ["../library/*"]
     }
   },
-  "include": ["src"],
+  "include": ["src", "src/renderSvg.tsx"],
   "references": [{ "path": "../library" }]
 }

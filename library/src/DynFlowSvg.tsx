@@ -1,10 +1,10 @@
-import { flatten, values } from 'lodash'
 import React from 'react'
 import { mergeLists } from './ArrayUtils'
 import { RatesCollection } from './Flow'
 import { Commodity, CommodityId, EdgeId } from './Network'
 import { d } from './PathData'
 import { PiecewiseLinear } from './PiecewiseLinear'
+import { RightConstant } from './RightConstant'
 
 type ColorType = string
 
@@ -18,7 +18,7 @@ export const calcOutflowSteps = (
   outflow: RatesCollection,
   commodities: { [commodity in CommodityId]: Commodity }
 ): FlowStep[] => {
-  const outflowTimes = mergeLists(values(outflow).map((pwConstant) => pwConstant.times))
+  const outflowTimes = mergeLists(Object.values(outflow).map((pwConstant: RightConstant) => pwConstant.times))
   // Every two subsequent values in outflowTimes correspond to a flow step.
   const flowSteps = []
   for (let i = 0; i < outflowTimes.length - 1; i++) {
@@ -41,19 +41,15 @@ export const splitOutflowSteps = (
   capacity: number,
   t: number
 ) => {
-  const queueSteps = []
   const inEdgeSteps = []
-
-  const queueLength = queue.eval(t) / capacity
+  const tPlusTransitTime = t + transitTime
 
   for (let step of outflowSteps) {
     const relStart = step.start - t
     const relEnd = step.end - t
 
-    const queueStart = Math.max(transitTime - relEnd, -queueLength)
-    const queueEnd = Math.min(transitTime - relStart, 0)
-    if (queueStart < queueEnd) {
-      queueSteps.push({ start: queueStart, end: queueEnd, values: step.values })
+    if (step.start > tPlusTransitTime) {
+      break
     }
 
     const inEdgeStart = Math.max(relStart, 0)
@@ -61,6 +57,40 @@ export const splitOutflowSteps = (
     if (inEdgeStart < inEdgeEnd) {
       inEdgeSteps.push({ start: inEdgeStart, end: inEdgeEnd, values: step.values })
     }
+  }
+
+  const queueSteps: FlowStep[] = []
+
+  const queueSize = queue.eval(t)
+  if (queueSize <= 0) return { queueSteps, inEdgeSteps }
+
+  let firstIndexInQueue = null
+  for (let i = 0; i < outflowSteps.length; i++) {
+    const step = outflowSteps[i]
+    if (step.end >= tPlusTransitTime) {
+      firstIndexInQueue = i
+      break
+    }
+  }
+  if (firstIndexInQueue === null) return { queueSteps, inEdgeSteps }
+
+  let accSize = 0
+  for (let i = firstIndexInQueue; i < outflowSteps.length; i++) {
+    const step = outflowSteps[i]
+    const stepCapacity = step.values.reduce((acc, comm) => acc + comm.value, 0)
+    if (stepCapacity <= 0) continue
+
+    const stepSize = stepCapacity * (step.end - Math.max(tPlusTransitTime, step.start))
+
+    const inQueueStart = accSize / capacity
+    const inQueueEnd = Math.min(accSize + stepSize, queueSize) / capacity
+    queueSteps.push({
+      start: -inQueueEnd,
+      end: -inQueueStart,
+      values: step.values.map(({ color, value }) => ({ color, value: (value / stepCapacity) * capacity }))
+    })
+    accSize += stepSize
+    if (accSize >= queueSize) break
   }
 
   return { queueSteps, inEdgeSteps }
@@ -153,8 +183,8 @@ export const BaseEdge = ({
         fill="white"
         stroke="none"
       />
-      {flatten(
-        inEdgeSteps.map(({ start, end, values }, index1) => {
+      {inEdgeSteps
+        .map(({ start, end, values }, index1) => {
           const s = values.reduce((acc, { value }) => acc + value, 0) * flowScale
           let y = edgeStart[1] - s / 2
           return values.map(({ color, value }, index2) => {
@@ -172,10 +202,10 @@ export const BaseEdge = ({
             )
           })
         })
-      )}
+        .flat()}
       <g mask={`url(#${svgIdPrefix}fade-mask)`}>
-        {flatten(
-          queueSteps.map(({ start, end, values }, index1) => {
+        {queueSteps
+          .map(({ start, end, values }, index1) => {
             let x = edgeStart[0] - width
             return values
               .slice(0)
@@ -195,7 +225,7 @@ export const BaseEdge = ({
                 )
               })
           })
-        )}
+          .flat()}
       </g>
       <path
         stroke="gray"
