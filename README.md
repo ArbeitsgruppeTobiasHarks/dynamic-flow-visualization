@@ -20,4 +20,4 @@ In [single-file.html](./single-file.html), there is a sample setup showing how y
 
 ## Usage in LaTeX documents
 
-For a short tutorial on how to create and embed SVG files into your LaTeX project, see [embed-in-tex/README.md](embed-in-tex/README.md).
+For a short tutorial on how to create and embed SVG files into your LaTeX project, see [latex-tutorial/README.md](latex-tutorial/README.md).
