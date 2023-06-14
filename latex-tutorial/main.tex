@@ -1,0 +1,17 @@
+\documentclass{beamer}
+
+\usepackage[inkscapepath=./out/svg-inkscape]{svg}
+\usepackage{tikz} % Needed for the foreach loop
+
+\begin{document}
+    
+
+\begin{frame}{A Dynamic Flow}
+    \only<1->{This is wonderful:}
+    \begin{figure}
+        \foreach \x in {0,...,17}{\only<\the\numexpr \x+1>{\includesvg[width=0.5\textwidth]{build/step-\x .svg}}}%
+        \caption{A sample setup for rendering to \LaTeX.}
+    \end{figure}
+\end{frame}
+
+\end{document}
