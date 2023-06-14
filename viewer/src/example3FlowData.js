@@ -101,7 +101,7 @@ export default {
     ]
   ],
   queues: [
-    { times: [0.0], values: [0.0], first_slope: 0.0, last_slope: 0.0, domain: [-Infinity, Infinity] },
+    { times: [0.0], values: [0.0], firstSlope: 0.0, lastSlope: 0.0, domain: [-Infinity, Infinity] },
     {
       times: [
         0.0, 200.0, 600.0000000000566, 600.0500000000567, 800.050000000002, 800.100000000002, 1000.14999999982,
@@ -111,12 +111,12 @@ export default {
         0.0, 0.0, 4000.000000000566, 4000.000000000566, 2000.000000001113, 2000.000000001113, 4000.4999999992933,
         2000.0000000011128, 4000.4999999992933, 2000.0000000011128, 4000.4999999992933
       ],
-      first_slope: 0.0,
-      last_slope: -10.0,
+      firstSlope: 0.0,
+      lastSlope: -10.0,
       domain: [-Infinity, Infinity]
     },
-    { times: [0.0], values: [0.0], first_slope: 0.0, last_slope: 0.0, domain: [-Infinity, Infinity] },
-    { times: [0.0], values: [0.0], first_slope: 0.0, last_slope: 0.0, domain: [-Infinity, Infinity] },
-    { times: [0.0], values: [0.0], first_slope: 0.0, last_slope: 0.0, domain: [-Infinity, Infinity] }
+    { times: [0.0], values: [0.0], firstSlope: 0.0, lastSlope: 0.0, domain: [-Infinity, Infinity] },
+    { times: [0.0], values: [0.0], firstSlope: 0.0, lastSlope: 0.0, domain: [-Infinity, Infinity] },
+    { times: [0.0], values: [0.0], firstSlope: 0.0, lastSlope: 0.0, domain: [-Infinity, Infinity] }
   ]
 }
