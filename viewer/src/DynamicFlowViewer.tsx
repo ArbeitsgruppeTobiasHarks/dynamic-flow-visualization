@@ -226,7 +226,7 @@ export const DynamicFlowViewer = (props: { network: Network; flow: Flow }) => {
                 stepSize={0.01}
                 min={0}
                 max={(maxT - minT) / 10}
-                labelStepSize={(maxT - minT) / 50}
+                labelStepSize={maxT <= minT ? 1 : (maxT - minT) / 50}
               />
             </div>
           </div>
@@ -384,8 +384,8 @@ const SliderOption = (props: {
         value={props.value}
         min={min}
         max={max}
-        stepSize={(max - min) / 100}
-        labelStepSize={(max - min) / 10}
+        stepSize={min >= max ? 1 : (max - min) / 100}
+        labelStepSize={min >= max ? 1 : (max - min) / 10}
         labelPrecision={2}
       />
       <Button style={{ marginLeft: '16px' }} icon="reset" minimal onClick={() => props.setValue(props.initialValue)} />
