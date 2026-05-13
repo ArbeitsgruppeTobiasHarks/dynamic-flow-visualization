@@ -108,7 +108,173 @@ export const DynamicFlowSvgDefs = ({ svgIdPrefix }: { svgIdPrefix: string }) => 
   </>
 )
 
+const computeDrawPathsFromInEdgeSteps = (
+  inEdgeSteps: FlowStep[],
+  flowScale: number,
+  edgeStart: [number, number],
+  transitTime: number,
+  normOffsetted: number
+): { [key: string]: string } => {
+  type Paths = {
+    cur: {
+      topReversePath: string
+      connectPath: string
+      bottomPath: string
+      curX: number
+      curTop: number
+      curBottom: number
+    } | null
+    previousParts: string[]
+  }
+  const pathsByColor: { [key: string]: Paths } = {}
+
+  const closePath = (paths: Paths) => {
+    if (paths.cur != null) {
+      paths.previousParts.push(paths.cur.bottomPath + paths.cur.connectPath + paths.cur.topReversePath)
+      paths.cur = null
+    }
+  }
+
+  const closePaths = () => {
+    for (const key of Object.keys(pathsByColor)) {
+      const path = pathsByColor[key]
+      closePath(path)
+    }
+  }
+
+  const addRect = (color: string, x1: number, y1: number, x2: number, y2: number) => {
+    let paths = pathsByColor[color]
+    if (paths === undefined) {
+      paths = { cur: null, previousParts: [] }
+      pathsByColor[color] = paths
+    }
+
+    if (paths.cur !== null && x1 != paths.cur.curX) {
+      closePath(paths)
+    }
+
+    if (paths.cur === null) {
+      paths.cur = {
+        bottomPath: d.M(x1, y2) + d.H(x2),
+        curX: x2,
+        curBottom: y2,
+        curTop: y1,
+        connectPath: d.V(y1),
+        topReversePath: d.H(x1) + d.z
+      }
+    } else {
+      // Now, paths.cur.curX == x1.
+      let bottomPath = paths.cur.bottomPath
+      if (paths.cur.curBottom != y2) {
+        bottomPath += d.V(y2)
+      }
+      bottomPath = bottomPath + d.H(x2)
+
+      let topReversePath = paths.cur.topReversePath
+      if (paths.cur.curTop != y1) {
+        topReversePath = d.V(paths.cur.curTop) + topReversePath
+      }
+      topReversePath = d.H(x2) + topReversePath
+
+      paths.cur = {
+        bottomPath,
+        curX: x2,
+        curBottom: y2,
+        curTop: y1,
+        connectPath: d.V(y1),
+        topReversePath: topReversePath
+      }
+    }
+  }
+
+  for (let step of inEdgeSteps) {
+    const s = step.values.reduce((acc, { value }) => acc + value, 0) * flowScale
+    let y = edgeStart[1] - s / 2
+    for (const { color, value } of step.values) {
+      const myY = y
+      y += value * flowScale
+      addRect(
+        color,
+        edgeStart[0] + normOffsetted - (step.end / transitTime) * normOffsetted,
+        myY,
+        edgeStart[0] + normOffsetted - (step.start / transitTime) * normOffsetted,
+        myY + value * flowScale
+      )
+    }
+  }
+
+  closePaths()
+
+  return Object.fromEntries(
+    Object.entries(pathsByColor).map(([color, { previousParts }]) => [color, previousParts.join('')])
+  )
+}
+
 type XYCoordinates = [number, number]
+
+type RenderingMode = 'rect-based' | 'path-based'
+
+const InEdgeStepsPathBased = ({
+  inEdgeSteps,
+  flowScale,
+  edgeStart,
+  transitTime,
+  normOffsetted
+}: {
+  transitTime: number
+  flowScale: number
+  inEdgeSteps: FlowStep[]
+  edgeStart: XYCoordinates
+  normOffsetted: number
+}) => {
+  const inEdgePaths = computeDrawPathsFromInEdgeSteps(inEdgeSteps, flowScale, edgeStart, transitTime, normOffsetted)
+  return (
+    <>
+      {Object.entries(inEdgePaths).map(([color, path]) => (
+        <path key={color} fill={color} stroke="none" d={path} />
+      ))}
+    </>
+  )
+}
+
+const InEdgeStepsRectBased = ({
+  inEdgeSteps,
+  flowScale,
+  edgeStart,
+  transitTime,
+  normOffsetted
+}: {
+  transitTime: number
+  flowScale: number
+  inEdgeSteps: FlowStep[]
+  edgeStart: XYCoordinates
+  normOffsetted: number
+}) => {
+  return (
+    <>
+      {inEdgeSteps
+        .map(({ start, end, values }, index1) => {
+          const s = values.reduce((acc, { value }) => acc + value, 0) * flowScale
+          let y = edgeStart[1] - s / 2
+          return values.map(({ color, value }, index2) => {
+            const myY = y
+            y += value * flowScale
+            return (
+              <rect
+                key={`${index1}-${index2}`}
+                fill={color}
+                x={edgeStart[0] + normOffsetted - (end / transitTime) * normOffsetted}
+                y={myY}
+                width={((end - start) / transitTime) * normOffsetted}
+                height={value * flowScale}
+              />
+            )
+          })
+        })
+        .flat()}
+    </>
+  )
+}
 
 export const BaseEdge = ({
   multiGroup,
@@ -125,7 +291,8 @@ export const BaseEdge = ({
   capacity,
   inEdgeSteps = [],
   queueSteps = [],
-  id
+  id,
+  renderingMode = 'path-based'
 }: {
   multiGroup: boolean
   translate: number
@@ -142,6 +309,7 @@ export const BaseEdge = ({
   inEdgeSteps: FlowStep[]
   queueSteps: FlowStep[]
   id: EdgeId
+  renderingMode?: RenderingMode
 }) => {
   const width = flowScale * capacity
   const padding = offset
@@ -151,10 +319,12 @@ export const BaseEdge = ({
   const norm = Math.sqrt(delta[0] ** 2 + delta[1] ** 2)
   // start = from + (to - from)/|to - from| * 30
   const pad = [(delta[0] / norm) * padding, (delta[1] / norm) * padding]
-  const edgeStart = [from[0] + pad[0], from[1] + pad[1]]
+  const edgeStart: XYCoordinates = [from[0] + pad[0], from[1] + pad[1]]
   const deg = (Math.atan2(to[1] - from[1], to[0] - from[0]) * 180) / Math.PI
   //return <path d={`M${start[0]},${start[1]}L${end[0]},${end[1]}`} />
   const normOffsetted = norm - 2 * padding - arrowHeadWidth
+
+  const inEdgePaths = computeDrawPathsFromInEdgeSteps(inEdgeSteps, flowScale, edgeStart, transitTime, normOffsetted)
 
   return (
     <g
@@ -183,26 +353,26 @@ export const BaseEdge = ({
         fill="white"
         stroke="none"
       />
-      {inEdgeSteps
-        .map(({ start, end, values }, index1) => {
-          const s = values.reduce((acc, { value }) => acc + value, 0) * flowScale
-          let y = edgeStart[1] - s / 2
-          return values.map(({ color, value }, index2) => {
-            const myY = y
-            y += value * flowScale
-            return (
-              <rect
-                key={`${index1}-${index2}`}
-                fill={color}
-                x={edgeStart[0] + normOffsetted - (end / transitTime) * normOffsetted}
-                y={myY}
-                width={((end - start) / transitTime) * normOffsetted}
-                height={value * flowScale}
-              />
-            )
-          })
-        })
-        .flat()}
+      {renderingMode === 'path-based' ? (
+        <InEdgeStepsPathBased
+          edgeStart={edgeStart}
+          flowScale={flowScale}
+          inEdgeSteps={inEdgeSteps}
+          normOffsetted={normOffsetted}
+          transitTime={transitTime}
+        />
+      ) : (
+        <InEdgeStepsRectBased
+          edgeStart={edgeStart}
+          flowScale={flowScale}
+          inEdgeSteps={inEdgeSteps}
+          normOffsetted={normOffsetted}
+          transitTime={transitTime}
+        />
+      )}
+      {Object.entries(inEdgePaths).map(([color, path]) => (
+        <path key={color} fill={color} stroke="none" d={path} />
+      ))}
       <g mask={`url(#${svgIdPrefix}fade-mask)`}>
         {queueSteps
           .map(({ start, end, values }, index1) => {
