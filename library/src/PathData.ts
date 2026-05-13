@@ -7,6 +7,7 @@ export const d = {
   h: (x: number) => `h${x}`,
   H: (x: number) => `H${x}`,
   v: (y: number) => `v${y}`,
+  V: (y: number) => `V${y}`,
   m: (x: number, y: number) => `m${x} ${y}`,
   z: 'z',
   A: (rx: number, ry: number, xAxisRotation: number, largeArcFlag: 0 | 1, sweepFlag: 0 | 1, x: number, y: number) =>
