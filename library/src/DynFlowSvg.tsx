@@ -142,14 +142,27 @@ const computeDrawPathsFromInEdgeSteps = (
     }
   }
 
+  const intervalsOverlap = (a1: number, b1: number, a2: number, b2: number): boolean => {
+    const [low1, high1] = [a1, b1].sort((a, b) => a - b)
+    const [low2, high2] = [a2, b2].sort((a, b) => a - b)
+    return !(high2 <= low1 || high1 <= low2)
+  }
+
   const addRect = (color: string, x1: number, y1: number, x2: number, y2: number) => {
+    if (x1 == x2 || y1 == y2) {
+      return
+    }
+
     let paths = pathsByColor[color]
     if (paths === undefined) {
       paths = { cur: null, previousParts: [] }
       pathsByColor[color] = paths
     }
 
-    if (paths.cur !== null && x1 != paths.cur.curX) {
+    if (
+      paths.cur !== null &&
+      (x1 != paths.cur.curX || !intervalsOverlap(y1, y2, paths.cur.curTop, paths.cur.curBottom))
+    ) {
       closePath(paths)
     }
 
@@ -174,7 +187,7 @@ const computeDrawPathsFromInEdgeSteps = (
       if (paths.cur.curTop != y1) {
         topReversePath = d.V(paths.cur.curTop) + topReversePath
       }
-      topReversePath = d.H(x2) + topReversePath
+      topReversePath = d.H(x1) + topReversePath
 
       paths.cur = {
         bottomPath,
@@ -324,8 +337,6 @@ export const BaseEdge = ({
   //return <path d={`M${start[0]},${start[1]}L${end[0]},${end[1]}`} />
   const normOffsetted = norm - 2 * padding - arrowHeadWidth
 
-  const inEdgePaths = computeDrawPathsFromInEdgeSteps(inEdgeSteps, flowScale, edgeStart, transitTime, normOffsetted)
-
   return (
     <g
       transform={`rotate(${deg}, ${edgeStart[0]}, ${edgeStart[1]}) translate(0 ${translate})`}
@@ -370,9 +381,6 @@ export const BaseEdge = ({
           transitTime={transitTime}
         />
       )}
-      {Object.entries(inEdgePaths).map(([color, path]) => (
-        <path key={color} fill={color} stroke="none" d={path} />
-      ))}
       <g mask={`url(#${svgIdPrefix}fade-mask)`}>
         {queueSteps
           .map(({ start, end, values }, index1) => {
