@@ -195,9 +195,9 @@ const computeDrawPathsFromInEdgeSteps = (
       y += value * flowScale
       addRect(
         color,
-        edgeStart[0] + normOffsetted - (step.end / transitTime) * normOffsetted,
-        myY,
         edgeStart[0] + normOffsetted - (step.start / transitTime) * normOffsetted,
+        myY,
+        edgeStart[0] + normOffsetted - (step.end / transitTime) * normOffsetted,
         myY + value * flowScale
       )
     }
